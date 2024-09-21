@@ -1,9 +1,9 @@
-import { readFileSync } from "fs";
 import * as core from "@actions/core";
-import OpenAI from "openai";
 import { Octokit } from "@octokit/rest";
-import parseDiff, { Chunk, File } from "parse-diff";
+import { readFileSync } from "fs";
 import minimatch from "minimatch";
+import OpenAI from "openai";
+import parseDiff, { Chunk, File } from "parse-diff";
 
 const GITHUB_TOKEN: string = core.getInput("GITHUB_TOKEN");
 const OPENAI_API_KEY: string = core.getInput("OPENAI_API_KEY");
@@ -23,10 +23,20 @@ interface PRDetails {
   description: string;
 }
 
+async function getPullRequestNumber(branch: string, owner: string, repo: string): Promise<number> {
+  const response = await octokit.pulls.list({
+    owner,
+    repo,
+    head: `${owner}:${branch}`,
+  });
+  return response.data[0].number;
+}
+
 async function getPRDetails(): Promise<PRDetails> {
-  const { repository, number } = JSON.parse(
-    readFileSync(process.env.GITHUB_EVENT_PATH || "", "utf8")
-  );
+  const owner = process.env.GITHUB_REPOSITORY?.split("/")[0] ?? "";
+  const repo = process.env.GITHUB_REPOSITORY?.split("/")[1] ?? "";
+  const branch = process.env.GITHUB_HEAD_REF ?? "";
+  const number = await getPullRequestNumber(branch, owner, repo);
   const prResponse = await octokit.pulls.get({
     owner: repository.owner.login,
     repo: repository.name,
