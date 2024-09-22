@@ -51,6 +51,7 @@ const minimatch_1 = __importDefault(__nccwpck_require__(2002));
 const GITHUB_TOKEN = core.getInput("GITHUB_TOKEN");
 const OPENAI_API_KEY = core.getInput("OPENAI_API_KEY");
 const OPENAI_API_MODEL = core.getInput("OPENAI_API_MODEL");
+const PULL_NUMBER = core.getInput("PULL_NUMBER");
 const octokit = new rest_1.Octokit({ auth: GITHUB_TOKEN });
 const openai = new openai_1.default({
     apiKey: OPENAI_API_KEY,
@@ -62,7 +63,7 @@ function getPRDetails() {
         const prResponse = yield octokit.pulls.get({
             owner: repository.owner.login,
             repo: repository.name,
-            pull_number: number,
+            pull_number: PULL_NUMBER,
         });
         return {
             owner: repository.owner.login,
