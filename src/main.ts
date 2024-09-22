@@ -34,6 +34,9 @@ async function getPullRequestNumber(branch: string, owner: string, repo: string)
 }
 
 async function getPRDetails(): Promise<PRDetails> {
+  const { repository, number } = JSON.parse(
+    readFileSync(process.env.GITHUB_EVENT_PATH || "", "utf8")
+  );
   const prResponse = await octokit.pulls.get({
     owner: repository.owner.login,
     repo: repository.name,

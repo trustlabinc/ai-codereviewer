@@ -42,20 +42,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const fs_1 = __nccwpck_require__(7147);
 const core = __importStar(__nccwpck_require__(2186));
-const openai_1 = __importDefault(__nccwpck_require__(47));
 const rest_1 = __nccwpck_require__(5375);
-const parse_diff_1 = __importDefault(__nccwpck_require__(4833));
+const fs_1 = __nccwpck_require__(7147);
 const minimatch_1 = __importDefault(__nccwpck_require__(2002));
+const openai_1 = __importDefault(__nccwpck_require__(47));
+const parse_diff_1 = __importDefault(__nccwpck_require__(4833));
 const GITHUB_TOKEN = core.getInput("GITHUB_TOKEN");
 const OPENAI_API_KEY = core.getInput("OPENAI_API_KEY");
 const OPENAI_API_MODEL = core.getInput("OPENAI_API_MODEL");
-const PULL_NUMBER = core.getInput("PULL_NUMBER");
+const PULL_NUMBER = parseInt(core.getInput("PULL_NUMBER"));
 const octokit = new rest_1.Octokit({ auth: GITHUB_TOKEN });
 const openai = new openai_1.default({
     apiKey: OPENAI_API_KEY,
 });
+function getPullRequestNumber(branch, owner, repo) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const response = yield octokit.pulls.list({
+            owner,
+            repo,
+            head: `${owner}:${branch}`,
+        });
+        return response.data[0].number;
+    });
+}
 function getPRDetails() {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
@@ -68,7 +78,7 @@ function getPRDetails() {
         return {
             owner: repository.owner.login,
             repo: repository.name,
-            pull_number: number,
+            pull_number: PULL_NUMBER,
             title: (_a = prResponse.data.title) !== null && _a !== void 0 ? _a : "",
             description: (_b = prResponse.data.body) !== null && _b !== void 0 ? _b : "",
         };
