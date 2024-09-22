@@ -197,8 +197,14 @@ async function main() {
   const eventData = JSON.parse(
     readFileSync(process.env.GITHUB_EVENT_PATH ?? "", "utf8")
   );
-
-  if (eventData.action === "opened") {
+  if (process.env.GITHUB_EVENT_NAME === "workflow_dispatch") {
+    diff = await getDiff(
+      prDetails.owner,
+      prDetails.repo,
+      prDetails.pull_number
+    );
+  }
+  else if (eventData.action === "opened") {
     diff = await getDiff(
       prDetails.owner,
       prDetails.repo,
