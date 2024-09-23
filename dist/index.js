@@ -62,6 +62,7 @@ function getPullRequestNumber(branch, owner, repo) {
             repo,
             head: `${owner}:${branch}`,
         });
+        console.log("PR number:", response.data[0].number);
         return response.data[0].number;
     });
 }
