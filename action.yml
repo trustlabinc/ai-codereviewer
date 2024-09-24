@@ -11,6 +11,9 @@ inputs:
     description: "OpenAI API model."
     required: false
     default: "gpt-4"
+  PULL_NUMBER:
+    description: "Pull request number to review."
+    required: true
   exclude:
     description: "Glob patterns to exclude files from the diff analysis"
     required: false
