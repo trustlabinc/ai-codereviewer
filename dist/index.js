@@ -51,37 +51,24 @@ const parse_diff_1 = __importDefault(__nccwpck_require__(4833));
 const GITHUB_TOKEN = core.getInput("GITHUB_TOKEN");
 const OPENAI_API_KEY = core.getInput("OPENAI_API_KEY");
 const OPENAI_API_MODEL = core.getInput("OPENAI_API_MODEL");
+const PULL_NUMBER = parseInt(core.getInput("PULL_NUMBER"));
 const octokit = new rest_1.Octokit({ auth: GITHUB_TOKEN });
 const openai = new openai_1.default({
     apiKey: OPENAI_API_KEY,
 });
-function getPullRequestNumber(branch, owner, repo) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const response = yield octokit.pulls.list({
-            owner,
-            repo,
-            head: `${owner}:${branch}`,
-        });
-        console.log("Branch:", branch);
-        console.log("PR number:", response.data[0].number);
-        return response.data[0].number;
-    });
-}
 function getPRDetails() {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
-        const { repository, _ } = JSON.parse((0, fs_1.readFileSync)(process.env.GITHUB_EVENT_PATH || "", "utf8"));
-        const branch = process.env.GITHUB_HEAD_REF || "";
-        const pull_number = yield getPullRequestNumber(branch, repository.owner.login, repository.name);
+        const { repository } = JSON.parse((0, fs_1.readFileSync)(process.env.GITHUB_EVENT_PATH || "", "utf8"));
         const prResponse = yield octokit.pulls.get({
             owner: repository.owner.login,
             repo: repository.name,
-            pull_number: pull_number,
+            pull_number: PULL_NUMBER,
         });
         return {
             owner: repository.owner.login,
             repo: repository.name,
-            pull_number: pull_number,
+            pull_number: PULL_NUMBER,
             title: (_a = prResponse.data.title) !== null && _a !== void 0 ? _a : "",
             description: (_b = prResponse.data.body) !== null && _b !== void 0 ? _b : "",
         };

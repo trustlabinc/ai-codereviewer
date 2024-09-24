@@ -8,6 +8,7 @@ import parseDiff, { Chunk, File } from "parse-diff";
 const GITHUB_TOKEN: string = core.getInput("GITHUB_TOKEN");
 const OPENAI_API_KEY: string = core.getInput("OPENAI_API_KEY");
 const OPENAI_API_MODEL: string = core.getInput("OPENAI_API_MODEL");
+const PULL_NUMBER: number = parseInt(core.getInput("PULL_NUMBER"));
 
 const octokit = new Octokit({ auth: GITHUB_TOKEN });
 
@@ -23,32 +24,19 @@ interface PRDetails {
   description: string;
 }
 
-async function getPullRequestNumber(branch: string, owner: string, repo: string): Promise<number> {
-  const response = await octokit.pulls.list({
-    owner,
-    repo,
-    head: `${owner}:${branch}`,
-  });
-  console.log("Branch:", branch);
-  console.log("PR number:", response.data[0].number);
-  return response.data[0].number;
-}
-
 async function getPRDetails(): Promise<PRDetails> {
-  const { repository, _ } = JSON.parse(
+  const { repository } = JSON.parse(
     readFileSync(process.env.GITHUB_EVENT_PATH || "", "utf8")
   );
-  const branch = process.env.GITHUB_HEAD_REF || "";
-  const pull_number = await getPullRequestNumber(branch, repository.owner.login, repository.name);
   const prResponse = await octokit.pulls.get({
     owner: repository.owner.login,
     repo: repository.name,
-    pull_number: pull_number,
+    pull_number: PULL_NUMBER,
   });
   return {
     owner: repository.owner.login,
     repo: repository.name,
-    pull_number: pull_number,
+    pull_number: PULL_NUMBER,
     title: prResponse.data.title ?? "",
     description: prResponse.data.body ?? "",
   };
